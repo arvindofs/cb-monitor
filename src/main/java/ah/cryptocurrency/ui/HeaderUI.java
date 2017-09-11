@@ -81,17 +81,19 @@ public class HeaderUI extends JPanel implements CoinAgent {
         ltcBuy.setEditable(false);
         diffLtcBuy.setEditable(false);
 
+        ltcPanel.add(new JLabel("Spot"));
+        ltcPanel.add(ltcSpot);
+        ltcPanel.add(diffLtcSpot);
+        ltcSpot.setEditable(false);
+        diffLtcSpot.setEditable(false);
+
         ltcPanel.add(new JLabel("Sell"));
         ltcPanel.add(ltcSell);
         ltcPanel.add(diffLtcSell);
         ltcSell.setEditable(false);
         diffLtcSell.setEditable(false);
 
-        ltcPanel.add(new JLabel("Spot"));
-        ltcPanel.add(ltcSpot);
-        ltcPanel.add(diffLtcSpot);
-        ltcSpot.setEditable(false);
-        diffLtcSpot.setEditable(false);
+
     }
 
     private void initializeETHPanel() {
@@ -101,17 +103,17 @@ public class HeaderUI extends JPanel implements CoinAgent {
         ethBuy.setEditable(false);
         diffEthBuy.setEditable(false);
 
-        ethPanel.add(new JLabel("Sell"));
-        ethPanel.add(ethSell);
-        ethPanel.add(diffEthSell);
-        ethSell.setEditable(false);
-        diffEthSell.setEditable(false);
-
         ethPanel.add(new JLabel("Spot"));
         ethPanel.add(ethSpot);
         ethPanel.add(diffEthSpot);
         ethSpot.setEditable(false);
         diffEthSpot.setEditable(false);
+
+        ethPanel.add(new JLabel("Sell"));
+        ethPanel.add(ethSell);
+        ethPanel.add(diffEthSell);
+        ethSell.setEditable(false);
+        diffEthSell.setEditable(false);
     }
 
 
@@ -122,17 +124,17 @@ public class HeaderUI extends JPanel implements CoinAgent {
         btcBuy.setEditable(false);
         diffBtcBuy.setEditable(false);
 
-        btcPanel.add(new JLabel("Sell"));
-        btcPanel.add(btcSell);
-        btcPanel.add(diffBtcSell);
-        btcSell.setEditable(false);
-        diffBtcSell.setEditable(false);
-
         btcPanel.add(new JLabel("Spot"));
         btcPanel.add(btcSpot);
         btcPanel.add(diffBtcSpot);
         btcSpot.setEditable(false);
         diffBtcSpot.setEditable(false);
+
+        btcPanel.add(new JLabel("Sell"));
+        btcPanel.add(btcSell);
+        btcPanel.add(diffBtcSell);
+        btcSell.setEditable(false);
+        diffBtcSell.setEditable(false);
     }
 
     public void updateRate(Rate rate) {

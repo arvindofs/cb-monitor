@@ -166,17 +166,18 @@ public class ContentUI extends JPanel implements CoinAgent {
                 try {
                     status = get();
                     if (status) {
-                        btcDataSet.addSeries(btcSellSeries);
+
                         btcDataSet.addSeries(btcBuySeries);
                         btcDataSet.addSeries(btcSpotSeries);
+                        btcDataSet.addSeries(btcSellSeries);
 
-                        ethDataSet.addSeries(ethSellSeries);
                         ethDataSet.addSeries(ethBuySeries);
                         ethDataSet.addSeries(ethSpotSeries);
+                        ethDataSet.addSeries(ethSellSeries);
 
-                        ltcDataSet.addSeries(ltcSellSeries);
                         ltcDataSet.addSeries(ltcBuySeries);
                         ltcDataSet.addSeries(ltcSpotSeries);
+                        ltcDataSet.addSeries(ltcSellSeries);
                     }
                 } catch (InterruptedException e) {
                     e.printStackTrace();
