@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class ApplicationConf implements CoinAgent {
 
-    final long delayPeriod = 1;
+    final long delayPeriod = 15;
     final TimeUnit delayUnit = TimeUnit.SECONDS;
 
 

@@ -171,8 +171,8 @@ public class ContentUI extends JPanel implements CoinAgent {
                         btcDataSet.addSeries(btcSpotSeries);
 
                         ethDataSet.addSeries(ethSellSeries);
-                        ethDataSet.addSeries(ethSellSeries);
-                        ethDataSet.addSeries(ethSellSeries);
+                        ethDataSet.addSeries(ethBuySeries);
+                        ethDataSet.addSeries(ethSpotSeries);
 
                         ltcDataSet.addSeries(ltcSellSeries);
                         ltcDataSet.addSeries(ltcBuySeries);
