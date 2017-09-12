@@ -4,6 +4,7 @@ import ah.cryptocoin.util.Agent;
 import ah.cryptocurrency.ui.CoinAgent;
 import com.google.gson.Gson;
 
+import java.awt.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
@@ -13,10 +14,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class ApplicationConf implements CoinAgent {
 
+    public static final Color GOOD    = Color.GREEN;
+    public static final Color BAD     = Color.RED;
+    public static final Color NEUTRAL = Color.WHITE;
+
     final long delayPeriod = 15;
     final TimeUnit delayUnit = TimeUnit.SECONDS;
-
-
 
     Rate previousRate;
     Rate currentRate;
@@ -26,6 +29,10 @@ public class ApplicationConf implements CoinAgent {
 
 
     public static enum PriceComparison {PREVIOUS, TODAY, LAST24HOUR, LAST1HOUR, YESTERDAY};
+
+    public PriceComparison getCompareMode() {
+        return compareMode;
+    }
 
     private PriceComparison compareMode;
 
@@ -96,6 +103,7 @@ public class ApplicationConf implements CoinAgent {
             previousRate = rateToCompare;
         }
 
+        ConditionalFormat.getInstance().setCompareWith(previousRate);
         historicalRate.historicalData.add(rate);
     }
 

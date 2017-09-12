@@ -2,9 +2,11 @@ package ah.cryptocurrency.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.concurrent.locks.Condition;
 
 import ah.cryptocoin.domain.ApplicationConf;
 import ah.cryptocoin.domain.Coin;
+import ah.cryptocoin.domain.ConditionalFormat;
 import ah.cryptocoin.domain.Rate;
 import layout.SpringUtilities;
 
@@ -141,22 +143,51 @@ public class HeaderUI extends JPanel implements CoinAgent {
 
         Rate previousRate = ApplicationConf.getApplicationConf().getRateToCompare();
 
-        fillText(btcBuy, rate.getBTCBuy(), previousRate.getBTCBuy(), Color.RED, Color.GREEN, diffBtcBuy);
-        fillText(ethBuy, rate.getETHBuy(), previousRate.getETHBuy(), Color.RED, Color.GREEN, diffEthBuy);
-        fillText(ltcBuy, rate.getLTCBuy(), previousRate.getLTCBuy(), Color.RED, Color.GREEN, diffLtcBuy);
+        fillTextAndFormat(btcBuy, diffBtcBuy, rate, Coin.RateType.BUY, Coin.CoinBase.BTC);
+        fillTextAndFormat(ethBuy, diffEthBuy, rate, Coin.RateType.BUY, Coin.CoinBase.ETH);
+        fillTextAndFormat(ltcBuy, diffLtcBuy, rate, Coin.RateType.BUY, Coin.CoinBase.LTC);
 
 
-        fillText(btcSell, rate.getBTCSell(), previousRate.getBTCSell(), Color.GREEN, Color.RED, diffBtcSell);
-        fillText(ethSell, rate.getETHSell(), previousRate.getETHSell(), Color.GREEN, Color.RED, diffEthSell);
-        fillText(ltcSell, rate.getLTCSell(), previousRate.getLTCSell(), Color.GREEN, Color.RED, diffLtcSell);
+        fillTextAndFormat(btcSell, diffBtcSell, rate, Coin.RateType.SELL, Coin.CoinBase.BTC);
+        fillTextAndFormat(ethSell, diffEthSell, rate, Coin.RateType.SELL, Coin.CoinBase.ETH);
+        fillTextAndFormat(ltcSell, diffLtcSell, rate, Coin.RateType.SELL, Coin.CoinBase.LTC);
 
-        fillText(btcSpot, rate.getBTCSpot(), previousRate.getBTCSpot(), Color.GREEN, Color.RED, diffBtcSpot);
-        fillText(ethSpot, rate.getETHSpot(), previousRate.getETHSpot(), Color.GREEN, Color.RED, diffEthSpot);
-        fillText(ltcSpot, rate.getLTCSpot(), previousRate.getLTCSpot(), Color.GREEN, Color.RED, diffLtcSpot);
+        fillTextAndFormat(btcSpot, diffBtcSpot, rate, Coin.RateType.SPOT, Coin.CoinBase.BTC);
+        fillTextAndFormat(ethSpot, diffEthSpot, rate, Coin.RateType.SPOT, Coin.CoinBase.ETH);
+        fillTextAndFormat(ltcSpot, diffLtcSpot, rate, Coin.RateType.SPOT, Coin.CoinBase.LTC);
+
+//        fillText(btcBuy, rate.getBTCBuy(), previousRate.getBTCBuy(), Color.RED, Color.GREEN, diffBtcBuy);
+//        fillText(ethBuy, rate.getETHBuy(), previousRate.getETHBuy(), Color.RED, Color.GREEN, diffEthBuy);
+//        fillText(ltcBuy, rate.getLTCBuy(), previousRate.getLTCBuy(), Color.RED, Color.GREEN, diffLtcBuy);
+//
+//
+//        fillText(btcSell, rate.getBTCSell(), previousRate.getBTCSell(), Color.GREEN, Color.RED, diffBtcSell);
+//        fillText(ethSell, rate.getETHSell(), previousRate.getETHSell(), Color.GREEN, Color.RED, diffEthSell);
+//        fillText(ltcSell, rate.getLTCSell(), previousRate.getLTCSell(), Color.GREEN, Color.RED, diffLtcSell);
+//
+//        fillText(btcSpot, rate.getBTCSpot(), previousRate.getBTCSpot(), Color.GREEN, Color.RED, diffBtcSpot);
+//        fillText(ethSpot, rate.getETHSpot(), previousRate.getETHSpot(), Color.GREEN, Color.RED, diffEthSpot);
+//        fillText(ltcSpot, rate.getLTCSpot(), previousRate.getLTCSpot(), Color.GREEN, Color.RED, diffLtcSpot);
 
     }
 
-    private void fillText(JTextField textField, Coin coin, Coin coinToCompare, Color c1, Color c2, JTextField diffLabel) {
+    private void fillTextAndFormat(JTextField textField, JTextField diffTextField, Rate current, Coin.RateType rateType, Coin.CoinBase coinBase) {
+        int code = ConditionalFormat.getInstance().compare(current, rateType, coinBase);
+        Color color = (code == 1) ? ApplicationConf.GOOD : (code == -1) ? ApplicationConf.BAD : ApplicationConf.NEUTRAL;
+        textField.setText(Float.toString(current.getValue(coinBase, rateType)));
+
+        if ((code == 0 && !ApplicationConf.getApplicationConf().getCompareMode().equals(ApplicationConf.PriceComparison.PREVIOUS)) || code != 0) {
+            textField.setBackground(color);
+        }
+
+        diffTextField.setBackground(color);
+        Rate compareWithRate = ConditionalFormat.getInstance().getCompareWith();
+        float diff = current.getValue(coinBase, rateType) - compareWithRate.getValue(coinBase, rateType);
+
+        diffTextField.setText(diff > 0 ? "+" : "" + Float.toString(diff));
+    }
+
+    private void fillTextAndFormatfillText(JTextField textField, Coin coin, Coin coinToCompare, Color c1, Color c2, JTextField diffLabel) {
 
         Float compareTo = coinToCompare == null ? -1 : coinToCompare.getAmount();
 
@@ -175,7 +206,7 @@ public class HeaderUI extends JPanel implements CoinAgent {
             }
         }
 
-        textField.setText(Float.toString(current));
+        textField.setText(Float.toString(coin.getAmount()));
     }
 }
 
