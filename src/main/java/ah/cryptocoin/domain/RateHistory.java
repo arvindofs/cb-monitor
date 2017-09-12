@@ -2,6 +2,7 @@ package ah.cryptocoin.domain;
 
 import ah.cryptocurrency.ui.CoinAgent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -10,6 +11,9 @@ import java.util.List;
 public class RateHistory implements CoinAgent {
     public List<Rate> historicalData;
 
+    public RateHistory() {
+        this(new ArrayList<Rate>());
+    }
     public RateHistory(List<Rate> historicalData) {
         this.historicalData = historicalData;
     }

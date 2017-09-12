@@ -6,7 +6,6 @@ import com.google.gson.Gson;
 
 import java.awt.*;
 import java.io.*;
-import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,10 +24,17 @@ public class ApplicationConf implements CoinAgent {
     Rate currentRate;
     Rate rateToCompare;
 
-    RateHistory historicalRate;
+    private final String CbMonitorHome = System.getProperty("user.home") + File.separator + ".cbmonitor" + File.separator;
+
+    private final File rateHistoryFile   = new File(CbMonitorHome + "coinbase-rh.json");
+    private final File thresholdRateFile =  new File(CbMonitorHome + "coinbase-tr.json");
+
+    private Rate thresholdRate;
+    private RateHistory historicalRate;
+
+    public enum PriceComparison {PREVIOUS, TODAY, LAST24HOUR, LAST1HOUR, YESTERDAY, THRESHOLD};
 
 
-    public static enum PriceComparison {PREVIOUS, TODAY, LAST24HOUR, LAST1HOUR, YESTERDAY};
 
     public PriceComparison getCompareMode() {
         return compareMode;
@@ -45,33 +51,81 @@ public class ApplicationConf implements CoinAgent {
 
     private ApplicationConf() {
         conf = this;
-        compareMode = PriceComparison.PREVIOUS;
+        compareMode = PriceComparison.THRESHOLD;
         rateToCompare = new Rate(-1);
-        loadHistoricalRate();
+        loadCBMonitorData();
         Runtime.getRuntime().addShutdownHook(new Thread(){
             @Override
             public void run() {
                 shutdown();
             }
         });
-
     }
 
-    private void loadHistoricalRate() {
-        File f = new File(System.getProperty("user.home")+File.separator+"coinbase-rh.json");
-        if(!f.exists()) {
-            historicalRate = new RateHistory(new ArrayList<Rate>());
-        } else {
-            try {
-                InputStreamReader isr = new InputStreamReader(new FileInputStream(f));
-                Gson gson = new Gson();
-                historicalRate = gson.fromJson(isr, RateHistory.class);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
-
-        }
+    private void checkAndCreateAppDataDir() {
+        File f = new File(CbMonitorHome);
+        if (!f.exists()) {f.mkdir();}
+    }
+    private void loadCBMonitorData() {
+        checkAndCreateAppDataDir();
+        loadRateHistory();
+        loadThresholdRate();
         Agent.register(historicalRate);
+    }
+
+    private void loadRateHistory() {
+        try {
+            historicalRate = loadData(RateHistory.class, rateHistoryFile);
+        } catch (Exception e) {
+            historicalRate = new RateHistory();
+        }
+    }
+
+    private void loadThresholdRate() {
+        try {
+            thresholdRate = loadData(Rate.class, thresholdRateFile);
+        } catch (Exception e) {
+            thresholdRate = new Rate(System.currentTimeMillis());
+            thresholdRate.setBuy(createCoin(4000f, Coin.CoinBase.BTC, Coin.Currency.USD),
+                    createCoin(290f, Coin.CoinBase.ETH, Coin.Currency.USD),
+                    createCoin(65.5f, Coin.CoinBase.LTC, Coin.Currency.USD));
+
+            thresholdRate.setSell(createCoin(4600f, Coin.CoinBase.BTC, Coin.Currency.USD),
+                    createCoin(360f, Coin.CoinBase.ETH, Coin.Currency.USD),
+                    createCoin(75f, Coin.CoinBase.LTC, Coin.Currency.USD));
+
+            thresholdRate.setSell(createCoin(4300f, Coin.CoinBase.BTC, Coin.Currency.USD),
+                    createCoin(330f, Coin.CoinBase.ETH, Coin.Currency.USD),
+                    createCoin(70f, Coin.CoinBase.LTC, Coin.Currency.USD));
+
+            writeThresholdRate();
+        }
+    }
+
+    private Coin createCoin(float amount, Coin.CoinBase base, Coin.Currency currency) {
+        Coin coin = new Coin();
+        coin.setAmount(amount);
+        coin.setBase(base);
+        coin.setCurrency(currency);
+
+        return coin;
+    }
+
+    private <T>T loadData(Class<T> type, File file) throws InstantiationException, IllegalAccessException, FileNotFoundException {
+        T returnClass = null;
+
+        if (!file.exists()) throw new FileNotFoundException();
+
+        try {
+            InputStreamReader isr = new InputStreamReader(new FileInputStream(file));
+            Gson gson = new Gson();
+            returnClass = gson.fromJson(isr, type);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+
+        return returnClass;
     }
 
     public long getDelayPeriod () {
@@ -88,22 +142,26 @@ public class ApplicationConf implements CoinAgent {
 
     public void updateRate(Rate rate) {
 
-        if (previousRate == null) {
-            currentRate = rate;
-        } else {
-            previousRate = currentRate;
-            currentRate = rate;
-        }
-
         if( compareMode.equals(PriceComparison.PREVIOUS)) {
+
+            if (previousRate == null) {
+                currentRate = rate;
+            } else {
+                previousRate = currentRate;
+                currentRate = rate;
+            }
+
             rateToCompare = previousRate;
             if (rateToCompare == null) {
                 rateToCompare = new Rate(-1);
             }
             previousRate = rateToCompare;
+        } else if (compareMode.equals(PriceComparison.THRESHOLD)) {
+            loadThresholdRate();
+            previousRate = rateToCompare = thresholdRate;
         }
 
-        ConditionalFormat.getInstance().setCompareWith(previousRate);
+        ConditionalFormat.getInstance().setCompareWith(rateToCompare);
         historicalRate.historicalData.add(rate);
     }
 
@@ -111,18 +169,31 @@ public class ApplicationConf implements CoinAgent {
         return historicalRate;
     }
 
-    private void shutdown() {
+    private void writeHistoricalData() {
+        writeData(rateHistoryFile, historicalRate);
+    }
+
+    private void writeThresholdRate() {
+        writeData(thresholdRateFile, thresholdRate);
+    }
+
+    private void writeData(File writeTo, Object object) {
+
         Gson gson = new Gson();
-        String json = gson.toJson(getHistoricalRate());
+        String json = gson.toJson(object);
         try {
-            FileOutputStream fos = new FileOutputStream(new File(System.getProperty("user.home")+File.separator+"coinbase-rh.json"));
+            checkAndCreateAppDataDir();
+            FileOutputStream fos = new FileOutputStream(writeTo);
             fos.write(json.getBytes());
             fos.flush();
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-
+    private void shutdown() {
+        writeHistoricalData();
+        writeThresholdRate();
     }
 }

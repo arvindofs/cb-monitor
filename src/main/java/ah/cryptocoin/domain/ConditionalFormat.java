@@ -64,17 +64,18 @@ public class ConditionalFormat {
 
         float compareTo = compareWith.getValue(coinBase, rateType);
 
-
         int code[] = rateType.equals(Coin.RateType.BUY) ? new int[]{1, 0, -1} : new int[]{-1, 0, 1};
+        int returnCode = code[1];
 
         if (compareTo == -1) return code[1];
 
         if (compareTo > currentAmount) {
-            return code[0];
+            returnCode = code[0];
         } else if (compareTo < currentAmount) {
-            return code[2];
+            returnCode = code[2];
         }
-        return code[1];
+
+        return returnCode;
     }
 
 }
