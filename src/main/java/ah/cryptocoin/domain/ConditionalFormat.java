@@ -36,21 +36,6 @@ public class ConditionalFormat {
      */
     public int compare(Rate currentRate, Coin.RateType rateType, Coin.CoinBase coinBase) {
         return compare(currentRate.getValue(coinBase, rateType), rateType, coinBase);
-
-//        float currentAmount = currentRate.getValue(coinBase, rateType);
-//        float compareTo = compareWith.getValue(coinBase, rateType);
-//
-//
-//        int code[] = rateType.equals(Coin.RateType.BUY) ? new int[]{1, 0, -1} : new int[]{-1, 0, 1};
-//
-//        if (compareTo == -1) return code[1];
-//
-//        if (compareTo > currentAmount) {
-//            return code[0];
-//        } else if (compareTo < currentAmount) {
-//            return code[2];
-//        }
-//        return code[1];
     }
 
     /**
