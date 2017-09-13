@@ -21,6 +21,12 @@ public class Rate {
         sell = new HashMap<Coin.CoinBase, Coin>();
     }
 
+    public float getValue(Coin.CoinBase coinBase, Coin.RateType rateType) {
+        Map<Coin.CoinBase, Coin> coinMap = rateType.equals(Coin.RateType.BUY) ? buy : rateType.equals(Coin.RateType.SELL) ? sell : spot;
+        if (coinMap == null || coinMap.get(coinBase) == null) return -1;
+        return coinMap.get(coinBase).getAmount();
+    }
+
     public void setSpot(Coin btc, Coin eth, Coin ltc) {
         spot.put(Coin.CoinBase.BTC, btc);
         spot.put(Coin.CoinBase.ETH, eth);
