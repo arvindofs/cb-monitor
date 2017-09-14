@@ -163,6 +163,7 @@ public class ApplicationConf implements CoinAgent {
 
         ConditionalFormat.getInstance().setCompareWith(rateToCompare);
         historicalRate.historicalData.add(rate);
+        writeHistoricalData();
     }
 
     public RateHistory getHistoricalRate() {
