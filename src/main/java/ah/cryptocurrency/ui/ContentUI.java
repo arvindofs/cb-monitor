@@ -67,6 +67,10 @@ public class ContentUI extends JPanel implements CoinAgent {
         SpringUtilities.makeCompactGrid(this, 3,1,5,5,5,5);
     }
 
+    private void setDefaultChartStyle(JFreeChart chart) {
+
+    }
+
     private ChartPanel createBTCChartPanel(TimeSeriesCollection btcDataset) {
 
         JFreeChart btcChart = createChart(btcDataset, "BTC Trend");
