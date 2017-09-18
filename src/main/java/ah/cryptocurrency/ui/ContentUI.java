@@ -151,8 +151,10 @@ public class ContentUI extends JPanel implements CoinAgent {
         SwingWorker<Boolean, Rate> worker = new SwingWorker<Boolean, Rate>() {
             @Override
             protected Boolean doInBackground() throws Exception {
-                for (Rate rate : historicalRate.historicalData) {
-                    addTimeSeriesDataItem(rate);
+                synchronized (historicalRate) {
+                    for (Rate rate : historicalRate.historicalData) {
+                        addTimeSeriesDataItem(rate);
+                    }
                 }
 
                 initialized = true;
