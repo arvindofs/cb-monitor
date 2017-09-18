@@ -177,7 +177,7 @@ public class HeaderUI extends JPanel implements CoinAgent {
         Rate compareWithRate = ConditionalFormat.getInstance().getCompareWith();
         float diff = current.getValue(coinBase, rateType) - compareWithRate.getValue(coinBase, rateType);
 
-        diffTextField.setText(diff > 0 ? "+" : "" + Float.toString(diff));
+        diffTextField.setText(diff > 0 ? "+" + Float.toString(diff) : "" + Float.toString(diff));
     }
 }
 
