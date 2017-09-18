@@ -158,18 +158,26 @@ public class HeaderUI extends JPanel implements CoinAgent {
 
     private void fillTextAndFormat(JTextField textField, JTextField diffTextField, Rate current, Coin.RateType rateType, Coin.CoinBase coinBase) {
         int code = ConditionalFormat.getInstance().compare(current, rateType, coinBase);
-        Color color = (code == 1) ? ApplicationConf.GOOD : (code == -1) ? ApplicationConf.BAD : ApplicationConf.NEUTRAL;
+        Color background = (code == 1) ? ApplicationConf.GOOD : (code == -1) ? ApplicationConf.BAD : ApplicationConf.NEUTRAL;
         textField.setText(Float.toString(current.getValue(coinBase, rateType)));
 
         if ((code == 0 && !ApplicationConf.getApplicationConf().getCompareMode().equals(ApplicationConf.PriceComparison.PREVIOUS)) || code != 0) {
-            textField.setBackground(color);
+            textField.setBackground(background);
         }
 
-        diffTextField.setBackground(color);
+        Color foreground = (background.equals(ApplicationConf.BAD)) ? Color.WHITE : Color.BLACK;
+        diffTextField.setBackground(background);
+        textField.setForeground(foreground);
+        diffTextField.setForeground(foreground);
+        Font font = textField.getFont();
+        font = new Font(font.getName(), font.BOLD, 16);
+        textField.setFont(font);
+        diffTextField.setFont(font);
+
         Rate compareWithRate = ConditionalFormat.getInstance().getCompareWith();
         float diff = current.getValue(coinBase, rateType) - compareWithRate.getValue(coinBase, rateType);
 
-        diffTextField.setText(diff > 0 ? "+" : "" + Float.toString(diff));
+        diffTextField.setText((diff > 0 ? "+"  : "") + Float.toString(diff));
     }
 }
 
