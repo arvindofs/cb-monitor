@@ -17,7 +17,7 @@ public class ApplicationConf implements CoinAgent {
     public static final Color BAD     = Color.RED;
     public static final Color NEUTRAL = Color.WHITE;
 
-    final long delayPeriod = 15;
+    final long delayPeriod = 10;
     final TimeUnit delayUnit = TimeUnit.SECONDS;
 
     Rate previousRate;
@@ -142,28 +142,30 @@ public class ApplicationConf implements CoinAgent {
 
     public void updateRate(Rate rate) {
 
-        if( compareMode.equals(PriceComparison.PREVIOUS)) {
+        synchronized (historicalRate) {
+            if (compareMode.equals(PriceComparison.PREVIOUS)) {
 
-            if (previousRate == null) {
-                currentRate = rate;
-            } else {
-                previousRate = currentRate;
-                currentRate = rate;
+                if (previousRate == null) {
+                    currentRate = rate;
+                } else {
+                    previousRate = currentRate;
+                    currentRate = rate;
+                }
+
+                rateToCompare = previousRate;
+                if (rateToCompare == null) {
+                    rateToCompare = new Rate(-1);
+                }
+                previousRate = rateToCompare;
+            } else if (compareMode.equals(PriceComparison.THRESHOLD)) {
+                loadThresholdRate();
+                previousRate = rateToCompare = thresholdRate;
             }
 
-            rateToCompare = previousRate;
-            if (rateToCompare == null) {
-                rateToCompare = new Rate(-1);
-            }
-            previousRate = rateToCompare;
-        } else if (compareMode.equals(PriceComparison.THRESHOLD)) {
-            loadThresholdRate();
-            previousRate = rateToCompare = thresholdRate;
+            ConditionalFormat.getInstance().setCompareWith(rateToCompare);
+            historicalRate.historicalData.add(rate);
+            writeHistoricalData();
         }
-
-        ConditionalFormat.getInstance().setCompareWith(rateToCompare);
-        historicalRate.historicalData.add(rate);
-        writeHistoricalData();
     }
 
     public RateHistory getHistoricalRate() {

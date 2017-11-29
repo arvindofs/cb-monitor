@@ -8,20 +8,13 @@ import layout.SpringUtilities;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
-import org.jfree.chart.axis.CategoryAxis;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.plot.CategoryPlot;
-import org.jfree.chart.renderer.category.CategoryItemRenderer;
 import org.jfree.data.time.Millisecond;
 import org.jfree.data.time.TimeSeries;
 import org.jfree.data.time.TimeSeriesCollection;
 import org.jfree.data.time.TimeSeriesDataItem;
 
 import javax.swing.*;
-import java.awt.*;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 
 /**
@@ -143,7 +136,13 @@ public class ContentUI extends JPanel implements CoinAgent {
      */
     public Map<Coin.CoinBase,TimeSeriesCollection> createDataset() {
         ApplicationConf conf = ApplicationConf.getApplicationConf();
-        final RateHistory historicalRate = conf.getHistoricalRate();
+        Rate[] rateArray = new Rate[]{};
+        rateArray = conf.getHistoricalRate().getHistoricalData().toArray(rateArray);
+        java.util.List<Rate> rateList = new ArrayList<Rate>();
+        rateList.addAll(Arrays.asList(rateArray));
+        final RateHistory historicalRate = new RateHistory();
+        historicalRate.setHistoricalData(rateList);
+
         final TimeSeriesCollection btcDataSet = new TimeSeriesCollection();
         final TimeSeriesCollection ethDataSet = new TimeSeriesCollection();
         final TimeSeriesCollection ltcDataSet = new TimeSeriesCollection();
